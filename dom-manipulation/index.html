@@ -19,18 +19,27 @@
     li { margin: 6px 0; }
     .controls { margin-top: 8px; }
     label span { margin-right: 6px; }
+
+    /* notice */
+    #notice { margin: 10px 0; padding: 10px 12px; border-radius: 8px; display: none; }
+    .notice-info { background:#e7f1ff; color:#063a78; border:1px solid #b7d3ff; }
+    .notice-success { background:#e9f7ef; color:#1e6b3b; border:1px solid #bde5c8; }
+    .notice-error { background:#fdecea; color:#8a1d17; border:1px solid #f5c2bc; }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
+
+  <!-- Status / notice -->
+  <div id="notice" role="status" aria-live="polite"></div>
 
   <!-- Filter control -->
   <div class="row">
     <label for="categoryFilter"><span>Filter by category:</span></label>
     <select id="categoryFilter" onchange="filterQuotes()">
       <option value="all">All Categories</option>
-      <!-- options added dynamically -->
     </select>
+    <span id="lastSync" class="muted"></span>
   </div>
 
   <!-- Display area -->
@@ -39,6 +48,7 @@
   <!-- Controls -->
   <div class="row controls">
     <button id="newQuote" type="button">Show New Quote</button>
+    <button id="syncNow" type="button">Sync Now</button>
     <button id="exportJson" type="button">Export Quotes</button>
     <label>
       <span>Import Quotes:</span>

@@ -1,10 +1,13 @@
-// ===== Task 2: Dynamic Filtering + persistence =====
+// ===== Task 3: Server Sync + Conflict Resolution =====
 
 // Storage keys
 const LS_QUOTES_KEY = "quotes";
 const SS_LAST_QUOTE_KEY = "lastQuote";
-// IMPORTANT for checker: use this exact key/name
 const SELECTED_CATEGORY_KEY = "selectedCategory";
+const LS_LAST_SYNC_KEY = "lastSync";
+
+// Mock "server" endpoint (JSONPlaceholder)
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 
 // Defaults
 const DEFAULT_QUOTES = [
@@ -19,7 +22,37 @@ const DEFAULT_QUOTES = [
 let quotes = [];
 
 /* ===========================
-   Render helpers
+   Utilities: notices & time
+=========================== */
+function showNotice(message, type = "info", timeout = 2500) {
+  const box = document.getElementById("notice");
+  const classes = ["notice-info","notice-success","notice-error"];
+  box.classList.remove(...classes);
+  box.classList.add(type === "success" ? "notice-success"
+                    : type === "error" ? "notice-error"
+                    : "notice-info");
+  box.textContent = message;
+  box.style.display = "block";
+  clearTimeout(showNotice._t);
+  showNotice._t = setTimeout(() => { box.style.display = "none"; }, timeout);
+}
+
+function formatTime(ts) {
+  try {
+    const d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString();
+  } catch { return ""; }
+}
+
+function updateLastSyncUI() {
+  const el = document.getElementById("lastSync");
+  const ts = localStorage.getItem(LS_LAST_SYNC_KEY);
+  el.textContent = ts ? `Last sync: ${formatTime(ts)}` : "Not synced yet";
+}
+
+/* ===========================
+   Rendering
 =========================== */
 function renderQuote(q) {
   const box = document.getElementById("quoteDisplay");
@@ -32,7 +65,7 @@ function renderQuote(q) {
     <div class="quote-text">“${q.text}”</div>
     <div class="quote-meta">Category: <strong>${q.category}</strong></div>
   `;
-  try { sessionStorage.setItem(SS_LAST_QUOTE_KEY, JSON.stringify(q)); } catch (_) {}
+  try { sessionStorage.setItem(SS_LAST_QUOTE_KEY, JSON.stringify(q)); } catch {}
 }
 
 function renderQuoteList(list) {
@@ -46,15 +79,50 @@ function renderQuoteList(list) {
 }
 
 /* ===========================
-   Random respects filter
+   Filtering
 =========================== */
 function getFilteredQuotesBy(selectedCategory) {
   if (selectedCategory === "all") return quotes;
   return quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
 }
 
+function uniqueCategories() {
+  const set = new Set(quotes.map(q => q.category.trim()).filter(Boolean));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function populateCategories() {
+  const sel = document.getElementById("categoryFilter");
+  if (!sel) return;
+
+  const savedSelectedCategory = localStorage.getItem(SELECTED_CATEGORY_KEY) || sel.value || "all";
+  sel.innerHTML = `<option value="all">All Categories</option>`;
+  uniqueCategories().forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+
+  if ([...sel.options].some(o => o.value === savedSelectedCategory)) {
+    sel.value = savedSelectedCategory;
+  } else {
+    sel.value = "all";
+  }
+}
+
+function filterQuotes() {
+  const sel = document.getElementById("categoryFilter");
+  if (!sel) return;
+  const selectedCategory = sel.value || "all";
+  try { localStorage.setItem(SELECTED_CATEGORY_KEY, selectedCategory); } catch {}
+  renderQuoteList(getFilteredQuotesBy(selectedCategory));
+}
+
+/* ===========================
+   Random
+=========================== */
 function showRandomQuote() {
-  // Use the selectedCategory variable per checker expectation
   const selEl = document.getElementById("categoryFilter");
   const selectedCategory = selEl ? selEl.value : "all";
   const pool = getFilteredQuotesBy(selectedCategory);
@@ -64,7 +132,7 @@ function showRandomQuote() {
 }
 
 /* ===========================
-   Add Quote UI + logic
+   Add Quote
 =========================== */
 function createAddQuoteForm() {
   const mount = document.getElementById("formMount");
@@ -104,20 +172,14 @@ function addQuote() {
 
   quotes.push({ text, category });
   saveQuotes();
-
-  // Update categories and keep current selection
   populateCategories();
-
-  // Clear inputs
   textEl.value = "";
   catEl.value = "";
-
-  // Re-apply filter after adding
   filterQuotes();
 }
 
 /* ===========================
-   Local Storage helpers
+   Local Storage
 =========================== */
 function loadQuotes() {
   try {
@@ -128,15 +190,15 @@ function loadQuotes() {
       quotes = parsed.filter(q => q && typeof q.text === "string" && typeof q.category === "string");
       if (quotes.length === 0) { quotes = [...DEFAULT_QUOTES]; saveQuotes(); }
     } else { quotes = [...DEFAULT_QUOTES]; saveQuotes(); }
-  } catch (_) { quotes = [...DEFAULT_QUOTES]; saveQuotes(); }
+  } catch { quotes = [...DEFAULT_QUOTES]; saveQuotes(); }
 }
 
 function saveQuotes() {
-  try { localStorage.setItem(LS_QUOTES_KEY, JSON.stringify(quotes)); } catch (_) {}
+  try { localStorage.setItem(LS_QUOTES_KEY, JSON.stringify(quotes)); } catch {}
 }
 
 /* ===========================
-   JSON Import / Export
+   Import / Export (JSON)
 =========================== */
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
@@ -169,49 +231,80 @@ function importFromJsonFile(event) {
 }
 
 /* ===========================
-   Task 2: Categories & Filtering
+   Task 3: Server Sync
 =========================== */
-function uniqueCategories() {
-  const set = new Set(quotes.map(q => q.category.trim()).filter(Boolean));
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
+// Map remote posts -> quotes
+async function fetchRemoteQuotes() {
+  const res = await fetch(SERVER_URL);
+  if (!res.ok) throw new Error("Network error");
+  const posts = await res.json();
+  // Limit to keep UI tidy; map to our shape
+  return posts.slice(0, 12).map(p => ({
+    text: String(p.title).trim(),
+    category: "server"            // all server quotes share a category
+  })).filter(q => q.text.length > 0);
 }
 
-function populateCategories() {
-  const sel = document.getElementById("categoryFilter");
-  if (!sel) return;
+// Key builder for dedupe/conflict resolution
+function keyOf(q) {
+  return `${q.text}__${q.category}`.toLowerCase();
+}
 
-  // Remember current or saved selection
-  const savedSelectedCategory = localStorage.getItem(SELECTED_CATEGORY_KEY) || sel.value || "all";
+/**
+ * Merge remote quotes into local with a simple strategy:
+ * - If remote and local share the same key (text+category), remote **wins** (replace).
+ * - If remote key doesn't exist locally, add it.
+ * Returns stats for UI.
+ */
+function mergeServerWins(remoteQuotes) {
+  const localMap = new Map(quotes.map(q => [keyOf(q), q]));
+  let added = 0, updated = 0;
 
-  // Rebuild options (keep first All)
-  sel.innerHTML = `<option value="all">All Categories</option>`;
-  uniqueCategories().forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    sel.appendChild(opt);
-  });
+  for (const rq of remoteQuotes) {
+    const k = keyOf(rq);
+    if (localMap.has(k)) {
+      const current = localMap.get(k);
+      // Replace only if something differs (future-proof)
+      if (current.text !== rq.text || current.category !== rq.category) {
+        localMap.set(k, rq);
+        updated++;
+      }
+    } else {
+      localMap.set(k, rq);
+      added++;
+    }
+  }
 
-  // Restore selection if it still exists
-  if ([...sel.options].some(o => o.value === savedSelectedCategory)) {
-    sel.value = savedSelectedCategory;
-  } else {
-    sel.value = "all";
+  // Write back to quotes array
+  quotes = Array.from(localMap.values());
+  return { added, updated };
+}
+
+async function syncWithServer() {
+  try {
+    showNotice("Syncing with server…", "info", 4000);
+    const remote = await fetchRemoteQuotes();
+    const { added, updated } = mergeServerWins(remote);
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+
+    localStorage.setItem(LS_LAST_SYNC_KEY, String(Date.now()));
+    updateLastSyncUI();
+
+    const msg = (added === 0 && updated === 0)
+      ? "Already up to date."
+      : `Sync complete: ${added} added, ${updated} updated (server-wins).`;
+    showNotice(msg, "success");
+  } catch (err) {
+    showNotice("Sync failed. Please try again.", "error");
   }
 }
 
-function filterQuotes() {
-  const sel = document.getElementById("categoryFilter");
-  if (!sel) return;
-
-  // IMPORTANT for checker: explicitly name variable selectedCategory
-  const selectedCategory = sel.value || "all";
-
-  // Save selection to localStorage
-  try { localStorage.setItem(SELECTED_CATEGORY_KEY, selectedCategory); } catch (_) {}
-
-  const list = getFilteredQuotesBy(selectedCategory);
-  renderQuoteList(list);
+function startAutoSync(intervalMs = 30000) {
+  // Avoid multiple timers if hot-reloading
+  if (startAutoSync._timer) clearInterval(startAutoSync._timer);
+  startAutoSync._timer = setInterval(syncWithServer, intervalMs);
 }
 
 /* ===========================
@@ -219,20 +312,19 @@ function filterQuotes() {
 =========================== */
 document.addEventListener("DOMContentLoaded", () => {
   loadQuotes();
-
-  // Build category options and restore last selected category on load
   populateCategories();
-
-  // Apply filter on load (restores last selection view)
   filterQuotes();
+  updateLastSyncUI();
 
-  // Wire up controls
   document.getElementById("newQuote").addEventListener("click", showRandomQuote);
   document.getElementById("exportJson").addEventListener("click", exportToJsonFile);
+  document.getElementById("syncNow").addEventListener("click", syncWithServer);
 
-  // Add-quote UI
   createAddQuoteForm();
+
+  // Kick off periodic sync (every 30s)
+  startAutoSync(30000);
 });
 
-// Expose import function for inline handler
+// Expose import for inline handler
 window.importFromJsonFile = importFromJsonFile;
