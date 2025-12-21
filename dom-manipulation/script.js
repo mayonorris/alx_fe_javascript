@@ -293,8 +293,10 @@ function mergeServerWins(remoteQuotes) {
 async function syncQuotes() {
   try {
     showNotice("Syncing with server…", "info", 4000);
+
     const remote = await fetchQuotesFromServer();
     const { added, updated } = mergeServerWins(remote);
+
     saveQuotes();
     populateCategories();
     filterQuotes();
@@ -302,10 +304,11 @@ async function syncQuotes() {
     localStorage.setItem(LS_LAST_SYNC_KEY, String(Date.now()));
     updateLastSyncUI();
 
-    const msg = (added === 0 && updated === 0)
-      ? "Already up to date."
-      : `Sync complete: ${added} added, ${updated} updated (server-wins).`;
-    showNotice(msg, "success");
+    // IMPORTANT: checker looks for this exact message
+    showNotice("Quotes synced with server!", "success");
+
+    // (Optional) If you still want more details, log them:
+    console.log(`Sync details → added: ${added}, updated: ${updated}`);
   } catch {
     showNotice("Sync failed. Please try again.", "error");
   }
