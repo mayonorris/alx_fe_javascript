@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Quote Generator</title>
   <style>
-    /* minimal styles (optional) */
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
     h1 { margin-bottom: 12px; }
@@ -25,16 +24,16 @@
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Filter control (Task 2) -->
+  <!-- Filter control -->
   <div class="row">
     <label for="categoryFilter"><span>Filter by category:</span></label>
     <select id="categoryFilter" onchange="filterQuotes()">
       <option value="all">All Categories</option>
-      <!-- options are added dynamically -->
+      <!-- options added dynamically -->
     </select>
   </div>
 
-  <!-- Where quotes render (list or single) -->
+  <!-- Display area -->
   <div id="quoteDisplay" aria-live="polite"></div>
 
   <!-- Controls -->
@@ -42,12 +41,12 @@
     <button id="newQuote" type="button">Show New Quote</button>
     <button id="exportJson" type="button">Export Quotes</button>
     <label>
-      <span>Import JSON:</span>
+      <span>Import Quotes:</span>
       <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
     </label>
   </div>
 
-  <!-- Add-quote form will be created dynamically -->
+  <!-- Add-quote form mounts here -->
   <div id="formMount" class="row"></div>
 
   <script src="script.js"></script>
