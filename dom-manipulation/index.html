@@ -16,27 +16,38 @@
     input[type="text"] { padding: 10px; border-radius: 8px; border: 1px solid #ccc; min-width: 240px; }
     button { cursor: pointer; padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; }
     .muted { color: #777; font-size: 0.9rem; }
+    ul { padding-left: 18px; }
+    li { margin: 6px 0; }
     .controls { margin-top: 8px; }
+    label span { margin-right: 6px; }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- live region for updates -->
+  <!-- Filter control (Task 2) -->
+  <div class="row">
+    <label for="categoryFilter"><span>Filter by category:</span></label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+      <!-- options are added dynamically -->
+    </select>
+  </div>
+
+  <!-- Where quotes render (list or single) -->
   <div id="quoteDisplay" aria-live="polite"></div>
 
-  <!-- randomize -->
+  <!-- Controls -->
   <div class="row controls">
     <button id="newQuote" type="button">Show New Quote</button>
     <button id="exportJson" type="button">Export Quotes</button>
-    <!-- per spec: inline onchange calling importFromJsonFile(event) is acceptable -->
     <label>
       <span>Import JSON:</span>
       <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
     </label>
   </div>
 
-  <!-- add-quote form will be created dynamically -->
+  <!-- Add-quote form will be created dynamically -->
   <div id="formMount" class="row"></div>
 
   <script src="script.js"></script>
