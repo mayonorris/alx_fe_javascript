@@ -5,30 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Quote Generator</title>
   <style>
-    /* Minimal styles so it’s readable without a CSS file */
+    /* minimal styles (optional) */
     :root { color-scheme: light dark; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
     h1 { margin-bottom: 12px; }
     #quoteDisplay { padding: 16px; border: 1px solid #ddd; border-radius: 8px; min-height: 64px; }
     .quote-text { font-size: 1.05rem; }
     .quote-meta { color: #666; font-size: 0.9rem; margin-top: 6px; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
     input[type="text"] { padding: 10px; border-radius: 8px; border: 1px solid #ccc; min-width: 240px; }
     button { cursor: pointer; padding: 10px 14px; border-radius: 8px; border: 1px solid #ccc; }
     .muted { color: #777; font-size: 0.9rem; }
+    .controls { margin-top: 8px; }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Where quotes will render -->
+  <!-- live region for updates -->
   <div id="quoteDisplay" aria-live="polite"></div>
 
-  <div class="row">
+  <!-- randomize -->
+  <div class="row controls">
     <button id="newQuote" type="button">Show New Quote</button>
+    <button id="exportJson" type="button">Export JSON</button>
+    <!-- per spec: inline onchange calling importFromJsonFile(event) is acceptable -->
+    <label>
+      <span>Import JSON:</span>
+      <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+    </label>
   </div>
 
-  <!-- The add-quote form is created dynamically and mounted here -->
+  <!-- add-quote form will be created dynamically -->
   <div id="formMount" class="row"></div>
 
   <script src="script.js"></script>
