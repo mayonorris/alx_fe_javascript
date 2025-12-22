@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Quote Generator</title>
+  <link rel="stylesheet" href="1-style.css" />
+</head>
+<body>
+  <h1>Dynamic Quote Generator</h1>
+
+  <!-- Status / notice -->
+  <div id="notice" role="status" aria-live="polite"></div>
+
+  <!-- Filters row -->
+  <div class="row">
+    <label for="categoryFilter"><span>Filter by category:</span></label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+    </select>
+
+    <!-- NEW: live text search -->
+    <input id="searchText" type="text" placeholder="Search quotes…" />
+
+    <span id="lastSync" class="muted"></span>
+  </div>
+
+  <!-- Display area -->
+  <div id="quoteDisplay" aria-live="polite"></div>
+
+  <!-- Controls -->
+  <div class="row controls">
+    <button id="newQuote" type="button">Show New Quote</button>
+    <button id="syncNow" type="button">Sync Now</button>
+    <button id="exportJson" type="button">Export Quotes</button>
+    <label>
+      <span>Import Quotes:</span>
+      <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+    </label>
+  </div>
+
+  <!-- Add-quote form mounts here -->
+  <div id="formMount" class="row"></div>
+
+  <script src="1-script.js"></script>
+</body>
+</html>
