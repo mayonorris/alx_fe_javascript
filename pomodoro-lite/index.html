@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pomodoro Lite</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Pomodoro Lite</h1>
+      <p class="muted">25 min focus • 5 min break — no dependencies</p>
+    </header>
+
+    <section class="config">
+      <div class="field">
+        <label for="workMins">Work (min)</label>
+        <input id="workMins" type="number" min="1" max="120" value="25" />
+      </div>
+      <div class="field">
+        <label for="breakMins">Break (min)</label>
+        <input id="breakMins" type="number" min="1" max="60" value="5" />
+      </div>
+      <label class="beep">
+        <input id="soundOn" type="checkbox" checked />
+        Beep on finish
+      </label>
+    </section>
+
+    <section class="timer">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="bg" cx="60" cy="60" r="54" />
+        <circle class="fg" cx="60" cy="60" r="54" />
+      </svg>
+      <div class="time" id="timeLabel">25:00</div>
+      <div class="mode" id="modeLabel">Focus</div>
+    </section>
+
+    <section class="controls">
+      <button id="startPauseBtn" type="button">Start</button>
+      <button id="resetBtn" type="button">Reset</button>
+      <button id="toggleModeBtn" type="button">Switch to Break</button>
+    </section>
+
+    <footer class="muted small">
+      <span id="status">Ready</span>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
