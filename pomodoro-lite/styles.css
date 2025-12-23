@@ -1,0 +1,78 @@
+:root{
+  --bg:#0f1220;
+  --panel:#161a2b;
+  --text:#e9ecff;
+  --muted:#9aa2c7;
+  --accent:#7c8cff;
+  --accent-2:#ff6e6e;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0d1020 0%, #0f1326 100%);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  display:grid;
+  place-items:center;
+}
+
+.container{
+  width:min(680px,92vw);
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
+  padding:20px 18px 16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+header h1{margin:.3rem 0 .2rem}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+
+.config{
+  display:flex; gap:12px; flex-wrap:wrap;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px; padding:12px;
+  margin:12px 0 6px;
+}
+.field{display:flex; flex-direction:column; gap:6px}
+input[type="number"]{
+  width:110px; padding:10px 12px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#0d1122; color:var(--text);
+}
+.beep{align-self:center; display:flex; gap:8px; user-select:none}
+
+.timer{
+  position:relative; display:grid; place-items:center; margin:14px 0 8px;
+}
+.ring{width:min(260px,70vw); height:auto; transform:rotate(-90deg)}
+.ring .bg{
+  fill:none; stroke:rgba(255,255,255,.08); stroke-width:12;
+}
+.ring .fg{
+  fill:none; stroke:var(--accent); stroke-width:12;
+  stroke-linecap:round; stroke-dasharray:339.292; /* 2πr (r=54) */
+  stroke-dashoffset:0; transition:stroke-dashoffset .25s linear, stroke .25s;
+}
+.time{
+  position:absolute; font-size:clamp(2.2rem, 7vw, 3rem); font-weight:700;
+}
+.mode{
+  position:absolute; top:72%; font-size:1rem; color:var(--muted);
+}
+
+.controls{display:flex; gap:10px; justify-content:center; margin:10px 0 6px}
+button{
+  cursor:pointer; border:1px solid rgba(255,255,255,.1);
+  background:#0e1326; color:var(--text);
+  padding:10px 14px; border-radius:12px; min-width:140px;
+  transition:transform .05s, background .2s, border-color .2s;
+}
+button:hover{background:#101736; border-color:rgba(255,255,255,.18)}
+button:active{transform:translateY(1px)}
+#toggleModeBtn{border-color:rgba(255,110,110,.25)}
+#toggleModeBtn:hover{background:#161229; border-color:rgba(255,110,110,.4)}
