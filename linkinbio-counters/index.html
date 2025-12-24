@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mayo • Links</title>
+  <meta name="description" content="Link-in-bio with click counters and dark mode." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="card">
+    <header class="header">
+      <img class="avatar" src="https://avatars.githubusercontent.com/u/000000?v=4" alt="Profile avatar" />
+      <h1 class="title">Mayo Takémsi Norris KADANGA</h1>
+      <p class="subtitle">Stats| FE Dev| JS learner</p>
+      <div class="actions">
+        <button id="themeBtn" type="button" aria-pressed="false">🌙 Dark</button>
+        <button id="exportBtn" type="button">Export JSON</button>
+        <label class="import-label">
+          <input id="importFile" type="file" accept=".json" />
+          Import JSON
+        </label>
+      </div>
+    </header>
+
+    <section class="links" id="linksList" aria-live="polite">
+      <!-- links render here -->
+    </section>
+
+    <section class="add">
+      <h2>Add a link</h2>
+      <form id="addForm">
+        <input id="labelInput" type="text" placeholder="Label (e.g., Portfolio)" required />
+        <input id="urlInput" type="url" placeholder="https://example.com" required />
+        <button type="submit">Add</button>
+      </form>
+      <p class="hint">Tip: click counts are stored locally on your device.</p>
+    </section>
+
+    <footer class="foot">
+      <span id="status" class="muted">Ready</span>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
